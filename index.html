@@ -8,16 +8,16 @@
 
   <link rel="icon" type="image/png" sizes="32x32" href="./images/favicon-32x32.png">
   <link rel="stylesheet" href="main.css">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
 
   <title>Frontend Mentor | Todo app</title>
 
   <!-- Feel free to remove these styles or customise in your own stylesheet 👍 -->
   <style>
     .attribution {
-      font-size: 11px;
+      font-size: 18px;
       text-align: center;
+      position: relative;
     }
 
     .attribution a {
@@ -28,14 +28,18 @@
 
 <body>
 
-  <div class="main-wrapper">
+  <div class="main-wrapper light-mode">
     <div class="image-wrapper">
-      <img src="./images/bg-desktop-light.jpg" alt="">
+      <!-- <img src="./images/bg-desktop-light.jpg" alt=""> -->
     </div>
     <div class="todo-wrapper ">
       <div class="heading">
         <span>T o d o</span>
-        <img src="./images/icon-moon.svg" alt="">
+        <div id="theme-selector">
+          <img id="light-mode" src="images/icon-moon.svg" alt="">
+          <img id="dark-mode" src="images/icon-sun.svg" style="display: none;" alt="">
+        </div>
+
       </div>
       <div class="create-todo">
         <form id="form">
@@ -43,10 +47,10 @@
         </form>
       </div>
       <div class="todos-wrapper">
-        <div class="todos">
-
+        <div class="todos todos-light-mode">
+          <!-- Dynamically add todos -->
         </div>
-        <div class="controls">
+        <div class="controls controls-light-mode">
           <div class="items-left">
             <span id="items-left"></span>items left
           </div>
@@ -58,19 +62,20 @@
           <div class="delete-completed">
             <span>Clear Completed</span>
           </div>
+
         </div>
 
 
         <div id="drag-drop">Drag and drop to reorder list</div>
       </div>
     </div>
+  </div>
 
-
-    <div class="attribution">
-      Challenge by <a href="https://www.frontendmentor.io?ref=challenge" target="_blank">Frontend Mentor</a>.
-      Coded by <a href="#">Mario Pineda</a>.
-    </div>
-    <script src="app.js"></script>
+  <div class="attribution">
+    Challenge by <a href="https://www.frontendmentor.io?ref=challenge" target="_blank">Frontend Mentor</a>.
+    Coded by <a href="#">Mario Pineda</a>.
+  </div>
+  <script src="app.js"></script>
 </body>
 
 </html>
