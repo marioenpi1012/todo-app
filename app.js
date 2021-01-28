@@ -7,22 +7,28 @@ const state = document.querySelector('.state')
 const dragText = document.getElementById('drag-drop')
 const controls = document.querySelector('.controls')
 const themeSelector = document.getElementById('theme-selector')
-
+const attributions = document.querySelector('.attribution')
 
 document.addEventListener('DOMContentLoaded', renderFirst )
 itemsLeft()
 form.addEventListener('submit', addTodo)
-deleteBtn.addEventListener('click',deleted)
+deleteBtn.addEventListener('click',deleteCompleted)
 state.addEventListener('click',filterTodos)
 todosHolder.addEventListener('click', addCompleted)
 themeSelector.addEventListener('click', setTheme)
+todosHolder.addEventListener('mouseover', crossDisplayMouseover)
+todosHolder.addEventListener('mouseout', crossDisplayMouseout)
+todosHolder.addEventListener('click', deleteTodo)
 
 function addTodo(e){
     e.preventDefault()
+    
     /* create todo div */
     const todo = document.createElement('div');
     todo.classList.add('todo')  /* add a todo class to div */
     todo.classList.add('active')
+    todo.value = formInput.value
+
     /* create checkbox */
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox'
@@ -31,16 +37,27 @@ function addTodo(e){
     /* create span */
     const span = document.createElement('span');
     span.innerHTML = formInput.value;
-    saveTodos(formInput.value)
+    saveLocalTodos(formInput.value)
     todo.appendChild(span)
     todosHolder.appendChild(todo)
     formInput.value = ''
+    /* create cross */
+    const cross = document.createElement('img')
+    cross.id = 'cross'
+    cross.src = './images/icon-cross.svg'
+    todo.appendChild(cross)
+    previousTheme()
     itemsLeft()
 }
 
 function renderFirst(){
     getTodos()
     previousTheme()
+    phoneBreakPoint()
+    /* let currentTheme = localStorage['theme']
+    if(currentTheme == 'dark-mode'){
+        attributions.style.color ='white'
+    } */
 }
 
 function addCompleted(e){
@@ -64,7 +81,6 @@ function addCompleted(e){
                     existingTodos = existingTodos ? JSON.parse(existingTodos) : {};
 
                     existingTodos.forEach(existingTodo =>{
-                        console.log(existingTodo)
                         if(todoValue == existingTodo.value){
                             existingTodo['completed'] = true
                             itemsLeft()
@@ -75,7 +91,6 @@ function addCompleted(e){
                     item.parentElement.classList.add('active')
                     item.classList.toggle('input-completed')
                     item.parentElement.classList.toggle('completed')
-                    // localStorage.setItem('todos', JSON.stringify(existingTodos))
                     let existingTodos = localStorage.getItem('todos')
 
                     existingTodos = existingTodos ? JSON.parse(existingTodos) : {};
@@ -88,7 +103,6 @@ function addCompleted(e){
                         }
                     })
                 } 
-                // localStorage.setItem('todos', JSON.stringify(existingTodos))
             }
                 }
         itemsLeft()
@@ -96,13 +110,45 @@ function addCompleted(e){
 }
 
 
-
-
-function deleted(){
+function crossDisplayMouseover(e){
+    const cross = document.querySelectorAll('#cross')
     const todos = document.querySelectorAll('.todo')
+    for(let i = 0; i < todos.length; i++){
+        todos[i].addEventListener('mouseover', ()=>{
+            cross[i].style.display = 'flex'
+        })
+    }
+    
+}
+
+function crossDisplayMouseout(e){
+    let X = e.target
+        if(X.classList.contains('todo')){
+            for(let i = 0; i< X.children.length; i++){
+                if(X.children[i].id == 'cross'){
+                    X.children[i].style.display = 'none'
+                }
+            }
+        }
+}
+
+function deleteTodo(e){
+    let todo = e.target
+    if(todo.id == 'cross'){
+        let todoDiv = todo.parentElement
+        todoDiv.remove()
+        deleteLocalTodos(todoDiv)
+        itemsLeft()
+    }
+    
+}
+
+function deleteCompleted(){
+    const todos = document.querySelectorAll('.todo')
+    
     todos.forEach(todo =>{
         if(todo.classList.contains('completed')){
-            deletedTodos(todo)
+            deleteLocalTodos(todo)
             todo.remove()
         }
         itemsLeft()
@@ -112,14 +158,11 @@ function itemsLeft(){
     const itemsLeft = document.getElementById('items-left')
     const active = document.querySelectorAll('.active').length
     itemsLeft.innerHTML = active
-
 }
 
 function filterTodos(e){
     const item = e.target;
     const todos = document.querySelectorAll('.todo')
-    const next = item.nextElementSibling;
-    const previous = item.previousElementSibling;
     const currentLocation = item
     const state = document.querySelectorAll('.state span')
 
@@ -143,8 +186,10 @@ function filterTodos(e){
             item.classList.toggle('controls-position')
             if(todo.classList.contains('completed')){
                 todo.style.display='block'
+            
             }else{
                 todo.style.display='none'
+                
             }
             break;
         case 'all':
@@ -157,7 +202,7 @@ function filterTodos(e){
 
 }
 
-function saveTodos(todo){
+function saveLocalTodos(todo){
     let todos;
     if(localStorage.getItem('todos') === null){
         todos = []
@@ -172,7 +217,7 @@ function saveTodos(todo){
     localStorage.setItem('todos', JSON.stringify(todos))
 }
 
-function deletedTodos(todo){
+function deleteLocalTodos(todo){
      let todos;
         if(localStorage.getItem('todos') === null){
             todos = []
@@ -183,10 +228,13 @@ function deletedTodos(todo){
             if(todos[i]['completed'] === true){
                 todos.splice(i,1)
                 localStorage.setItem('todos', JSON.stringify(todos))
+            }else if(todos[i]['value'] == todo.value){
+                todos.splice(i,1)
+                localStorage.setItem('todos', JSON.stringify(todos))
+            }
             }
         } 
         itemsLeft()
-}
 
 function getTodos(){
     let todos
@@ -194,12 +242,11 @@ function getTodos(){
         todos = []
     }else{
         todos = JSON.parse(localStorage.getItem('todos'))
-        console.log(todos)
     }
     todos.forEach(todo =>{
         const div = document.createElement('div');
         div.classList.add('todo');
-        // 
+        div.value = todo.value
 
         const input = document.createElement('input');
         input.type = 'checkbox';
@@ -219,6 +266,13 @@ function getTodos(){
         span.innerHTML = todo.value;
 
         div.appendChild(span)
+
+        /* create cross */
+        const cross = document.createElement('img')
+        cross.id = 'cross'
+        cross.src = './images/icon-cross.svg'
+
+        div.appendChild(cross)
 
         todosHolder.appendChild(div)
         itemsLeft()
@@ -283,14 +337,30 @@ function previousTheme(e){
 
 function setTheme(e){
     let theme = e.target.id
-    console.log('event working')
+    phoneBreakPoint()
     if(theme == 'light-mode'){
         /* Save Theme */
         localStorage['theme'] = 'dark-mode'
         previousTheme()
+        phoneBreakPoint()
     }else{
         /* Save Theme */
         localStorage['theme'] = 'light-mode'
         previousTheme()
+        phoneBreakPoint()
+    }
+}
+
+function phoneBreakPoint(){
+    let viewportWidth = window.innerWidth;
+    if(viewportWidth <= 600){
+        let previousTheme = localStorage['theme']
+        if(previousTheme == 'dark-mode'){
+            document.querySelector('.state').classList.add('state-dark-mode')
+            document.querySelector('.state').classList.remove('state-light-mode')
+        }else{
+            document.querySelector('.state').classList.add('state-light-mode')
+            document.querySelector('.state').classList.remove('state-dark-mode')
+        }
     }
 }
